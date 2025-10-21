@@ -1,0 +1,4 @@
+# see https://docs.codecov.com/v4.6/docs/codecov-yaml
+ignore:
+  - "src/more_click/__main__.py"
+  - "src/more_click/cli.py"

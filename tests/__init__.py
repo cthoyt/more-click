@@ -1,1 +1,1 @@
-"""Tests for more_click."""
+"""Tests for :mod:`more_click`."""

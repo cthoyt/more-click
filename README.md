@@ -37,8 +37,9 @@ Implementations of common CLI patterns on top of Click.
 
 ## 💪 Getting Started
 
-The module `more_click.options` has several options (pre-defined instances of `click.option()`) that I use often. First,
-`verbose_option` makes it easy to adjust the logger of your package using `-v`.
+The module `more_click.options` has several options (pre-defined instances of
+`click.option()`) that I use often. First, `verbose_option` makes it easy to
+adjust the logger of your package using `-v`.
 
 There are also several that are useful for web stuff, including
 
@@ -49,8 +50,9 @@ There are also several that are useful for web stuff, including
 
 ### Web Tools
 
-In many packages, I've included a Flask web application in `wsgi.py`. I usually use the following form inside `cli.py`
-file to import the web application and keep it insulated from other package-related usages:
+In many packages, I've included a Flask web application in `wsgi.py`. I usually
+use the following form inside `cli.py` file to import the web application and
+keep it insulated from other package-related usages:
 
 ```python
 # cli.py
@@ -70,8 +72,9 @@ if __name__ == '__main__':
     web()
 ```
 
-However, sometimes I want to make it possible to run via `gunicorn` from the CLI, so I would use the following
-extensions to automatically determine if it should be run with Flask's development server or gunicorn.
+However, sometimes I want to make it possible to run via `gunicorn` from the
+CLI, so I would use the following extensions to automatically determine if it
+should be run with Flask's development server or gunicorn.
 
 ```python
 # cli.py
@@ -105,8 +108,9 @@ if __name__ == '__main__':
     web()
 ```
 
-This uses a standard `wsgi`-style string to locate the app, since you don't want to be eagerly importing the app in your
-CLI since it might rely on optional dependencies like Flask. If your CLI has other stuff, you can include the web
+This uses a standard `wsgi`-style string to locate the app, since you don't want
+to be eagerly importing the app in your CLI since it might rely on optional
+dependencies like Flask. If your CLI has other stuff, you can include the web
 command in a group like:
 
 ```python

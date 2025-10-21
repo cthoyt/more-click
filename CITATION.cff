@@ -3,6 +3,6 @@ message: "If you use this software, please cite it as below."
 title: "More Click"
 authors:
   - name: "Charles Tapley Hoyt"
-version: 0.0.1-dev
+version: 0.1.3-dev
 doi:
 url: "https://github.com/cthoyt/more-click"

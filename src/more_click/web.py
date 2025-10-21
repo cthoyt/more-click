@@ -4,18 +4,20 @@ from __future__ import annotations
 
 import importlib
 import sys
+import warnings
 from collections.abc import Callable, Mapping
 from typing import TYPE_CHECKING, Any
 
 import click
 
 from .options import (
+    Server,
     flask_debug_option,
     gunicorn_timeout_option,
+    server_option,
     verbose_option,
     with_gunicorn_option,
     workers_option,
-    with_uvicorn_option,
 )
 
 if TYPE_CHECKING:
@@ -63,7 +65,7 @@ def make_web_command(  # noqa:C901
         show_default=True,
     )
     @with_gunicorn_option
-    @with_uvicorn_option
+    @server_option
     @workers_option
     @verbose_option
     @gunicorn_timeout_option
@@ -72,7 +74,7 @@ def make_web_command(  # noqa:C901
         host: str,
         port: str,
         with_gunicorn: bool,
-        with_uvicorn: bool,
+        server: Server,
         workers: int,
         debug: bool,
         timeout: int | None,
@@ -122,7 +124,7 @@ def make_web_command(  # noqa:C901
             port=port,
             workers=workers,
             with_gunicorn=with_gunicorn,
-            with_uvicorn=with_uvicorn,
+            server=server,
             debug=debug,
             timeout=timeout,
         )
@@ -133,7 +135,7 @@ def make_web_command(  # noqa:C901
 def run_app(
     app: flask.Flask,
     with_gunicorn: bool,
-    with_uvicorn: bool,
+    server: Server | None = None,
     host: str | None = None,
     port: str | None = None,
     workers: int | None = None,
@@ -142,6 +144,12 @@ def run_app(
 ) -> None:
     """Run the application."""
     if with_gunicorn:
+        warnings.warn("use `server` option to explicitly specify `gunicorn`", stacklevel=2)
+        server = "gunicorn"
+
+    if server == "flask" or server is None:
+        app.run(host=host, port=port, debug=debug)
+    elif server == "gunicorn":
         if host is None or port is None or workers is None:
             raise ValueError("must specify host, port, and workers for gunicorn.")
         if debug:
@@ -154,16 +162,22 @@ def run_app(
             timeout=timeout,
         )
         gunicorn_app.run()
-    elif with_uvicorn:
+    elif server == "uvicorn":
+        raise NotImplementedError
+    elif server == "hypercorn":
         if host is None or port is None:
-            raise ValueError("must specify host and port for uvicorn.")
-        if debug:
-            raise ValueError("can not use debug mode with uvicorn")
-        import uvicorn
+            raise ValueError("must specify host and port for hypercorn.")
 
-        uvicorn.run(app, host=host, port=int(port), log_level="info")
+        import asyncio
+
+        from hypercorn.asyncio import serve
+        from hypercorn.config import Config
+
+        config = Config()
+        config.bind = f"{host}:{port}"
+        asyncio.run(serve(app, config))
     else:
-        app.run(host=host, port=port, debug=debug)
+        raise ValueError(f"invalid server: {server}")
 
 
 def make_gunicorn_app(

@@ -4,8 +4,9 @@ from __future__ import annotations
 
 import logging
 import multiprocessing
+import typing
 from collections.abc import Callable
-from typing import Any
+from typing import Any, Literal, TypeAlias
 
 import click
 
@@ -17,6 +18,7 @@ __all__ = [
     "host_option",
     "log_level_option",
     "port_option",
+    "server_option",
     "verbose_option",
     "with_gunicorn_option",
     "workers_option",
@@ -52,23 +54,33 @@ def _number_of_workers() -> int:
     return (multiprocessing.cpu_count() * 2) + 1
 
 
+Server: TypeAlias = Literal["flask", "hypercorn", "uvicorn", "gunicorn"]
+
 host_option = click.option(
     "--host",
     type=str,
     default="0.0.0.0",  # noqa:S104
-    help="Flask host.",
+    help="The host to serve to",
     show_default=True,
 )
-port_option = click.option("--port", type=int, default=5000, help="Flask port.", show_default=True)
+port_option = click.option(
+    "--port", type=int, default=5000, help="The port to serve on", show_default=True
+)
 with_gunicorn_option = click.option(
     "--with-gunicorn", is_flag=True, help="Use gunicorn instead of flask dev server"
+)
+server_option = click.option(
+    "--server",
+    type=click.Choice(list(typing.get_args(Server))),
+    default="flask",
+    help="The server to use",
 )
 workers_option = click.option(
     "--workers",
     type=int,
     default=_number_of_workers(),
     show_default=True,
-    help="Number of workers (when using --with-gunicorn)",
+    help="Number of workers (e.g., when using gunicorn)",
 )
 force_option = click.option("-f", "--force", is_flag=True)
 debug_option = click.option("--debug", is_flag=True)

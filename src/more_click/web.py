@@ -46,7 +46,7 @@ def make_web_command(  # noqa:C901
     if isinstance(default_port, str):
         default_port = int(default_port)
 
-    @group_decorator
+    @group_decorator  # type:ignore
     @click.option(
         "--host",
         type=str,
@@ -159,26 +159,31 @@ def make_gunicorn_app(
     port: str,
     workers: int,
     timeout: int | None = None,
-    **kwargs,
+    **kwargs: Any,
 ) -> gunicorn.app.base.BaseApplication:
     """Make a GUnicorn App."""
     from gunicorn.app.base import BaseApplication
 
     class StandaloneApplication(BaseApplication):
-        def __init__(self, options=None) -> None:
+        """A standalone application adapter."""
+
+        def __init__(self, options: dict[str, Any] | None = None) -> None:
+            """Initialize the standalone applicaton object."""
             self.options = options or {}
             self.application = app
             super().__init__()
 
         def init(self, parser: Any, opts: Any, args: Any) -> None:
-            pass
+            """Initialize the app."""
 
         def load_config(self) -> None:
+            """Load the configuration."""
             for key, value in self.options.items():
                 if key in self.cfg.settings and value is not None:
                     self.cfg.set(key.lower(), value)
 
         def load(self) -> flask.Flask:
+            """Load the app."""
             return self.application
 
     kwargs.update(

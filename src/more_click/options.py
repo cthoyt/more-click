@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 import multiprocessing
+from collections.abc import Callable
 from typing import Any
 
 import click
@@ -20,6 +21,8 @@ __all__ = [
     "with_gunicorn_option",
     "workers_option",
 ]
+
+from click.decorators import FC
 
 LOG_FMT = "%(asctime)s %(levelname)-8s %(message)s"
 LOG_DATEFMT = "%Y-%m-%d %H:%M:%S"
@@ -80,7 +83,7 @@ gunicorn_timeout_option = click.option("--timeout", type=int, help="The timeout 
 _level_names = sorted(logging._nameToLevel, key=logging._nameToLevel.get)  # type: ignore
 
 
-def log_level_option(default: str | int = logging.INFO) -> click.Option:
+def log_level_option(default: str | int = logging.INFO) -> Callable[[FC], FC]:
     """Create a click option to select a log-level by name."""
     # normalize default to be a string
     if isinstance(default, int):

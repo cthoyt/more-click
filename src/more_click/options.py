@@ -19,6 +19,7 @@ __all__ = [
     "port_option",
     "verbose_option",
     "with_gunicorn_option",
+    "with_uvicorn_option",
     "workers_option",
 ]
 
@@ -62,6 +63,9 @@ host_option = click.option(
 port_option = click.option("--port", type=int, default=5000, help="Flask port.", show_default=True)
 with_gunicorn_option = click.option(
     "--with-gunicorn", is_flag=True, help="Use gunicorn instead of flask dev server"
+)
+with_uvicorn_option = click.option(
+    "--with-uvicorn", is_flag=True, help="Use uvicorn instead of flask dev server"
 )
 workers_option = click.option(
     "--workers",

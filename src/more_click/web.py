@@ -15,6 +15,7 @@ from .options import (
     verbose_option,
     with_gunicorn_option,
     workers_option,
+    with_uvicorn_option,
 )
 
 if TYPE_CHECKING:
@@ -62,6 +63,7 @@ def make_web_command(  # noqa:C901
         show_default=True,
     )
     @with_gunicorn_option
+    @with_uvicorn_option
     @workers_option
     @verbose_option
     @gunicorn_timeout_option
@@ -70,6 +72,7 @@ def make_web_command(  # noqa:C901
         host: str,
         port: str,
         with_gunicorn: bool,
+        with_uvicorn: bool,
         workers: int,
         debug: bool,
         timeout: int | None,
@@ -119,6 +122,7 @@ def make_web_command(  # noqa:C901
             port=port,
             workers=workers,
             with_gunicorn=with_gunicorn,
+            with_uvicorn=with_uvicorn,
             debug=debug,
             timeout=timeout,
         )
@@ -129,6 +133,7 @@ def make_web_command(  # noqa:C901
 def run_app(
     app: flask.Flask,
     with_gunicorn: bool,
+    with_uvicorn: bool,
     host: str | None = None,
     port: str | None = None,
     workers: int | None = None,
@@ -136,13 +141,11 @@ def run_app(
     debug: bool = False,
 ) -> None:
     """Run the application."""
-    if not with_gunicorn:
-        app.run(host=host, port=port, debug=debug)
-    elif host is None or port is None or workers is None:
-        raise ValueError("must specify host, port, and workers.")
-    elif debug:
-        raise ValueError("can not use debug=True with with_gunicorn=True")
-    else:
+    if with_gunicorn:
+        if host is None or port is None or workers is None:
+            raise ValueError("must specify host, port, and workers for gunicorn.")
+        if debug:
+            raise ValueError("can not use debug with gunicorn")
         gunicorn_app = make_gunicorn_app(
             app,
             host=host,
@@ -151,6 +154,16 @@ def run_app(
             timeout=timeout,
         )
         gunicorn_app.run()
+    elif with_uvicorn:
+        if host is None or port is None:
+            raise ValueError("must specify host and port for uvicorn.")
+        if debug:
+            raise ValueError("can not use debug mode with uvicorn")
+        import uvicorn
+
+        uvicorn.run(app, host=host, port=int(port), log_level="info")
+    else:
+        app.run(host=host, port=port, debug=debug)
 
 
 def make_gunicorn_app(

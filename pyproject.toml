@@ -60,13 +60,8 @@ tests = [
 ]
 docs = [
     "sphinx>=8",
-    "sphinx-rtd-theme>=3.0","sphinx-click", 
+    "sphinx-rtd-theme>=3.0",
     "sphinx_automodapi",
-    # Include if your project uses Pydantic:
-    # "autodoc_pydantic",
-    # To include LaTeX comments easily in your docs.
-    # If you uncomment this, don't forget to do the same in docs/conf.py
-    # texext
 ]
 lint = [
     "ruff",
@@ -74,9 +69,8 @@ lint = [
 typing = [
     { include-group = "tests" },
     "mypy",
-    "pydantic",
     "click-types",
-    # You will probably have to add additional type stubs here, especially if you're using tox-uv
+    "types-gunicorn",
 ]
 docs-lint = [
     { include-group = "docs" },

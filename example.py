@@ -13,6 +13,8 @@
 # more-click = { path = ".", editable = true }
 # ///
 
+"""An example app that can be served many different ways."""
+
 import flask
 
 app = flask.Flask(__name__)
